@@ -1,3 +1,5 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
 # dependencies
 /node_modules
 /.pnp
@@ -8,49 +10,59 @@
 !.yarn/releases
 !.yarn/versions
 
-# next.js
-/.next/
-/out/
-next-env.d.ts
-
-# production
-/build
-/dist
-
 # testing
 /coverage
 
-# environment — never commit credentials (.env.example IS committed)
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+# next.js
+/.next/
+/out/
 
-# prisma
+# production
+/build
+
+# misc
+.DS_Store
+Thumbs.db
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files — never commit credentials.
+# .env.example IS committed: it documents the required variables.
+.env*
+!.env.example
+
+# prisma local db artefacts
 /prisma/*.db
 /prisma/*.db-journal
 
 # uploaded assessment files — user content, not source
 /uploads/
 
-# vercel / typescript build info
+# vercel
 .vercel
+
+# typescript
 *.tsbuildinfo
+next-env.d.ts
 
-# logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
-
-# os / editor
-.DS_Store
-Thumbs.db
-*.pem
+# editors
 .idea/
 .vscode/*
 !.vscode/extensions.json
 
 # claude code local overrides
 .claude/settings.local.json
+
+# vendor-installed AI agent skill docs (written by `prisma init`) — local
+# developer aids, not part of this project's source
+.claude/skills/
+.agents/
+.windsurf/
+skills-lock.json
+
+/src/generated/prisma

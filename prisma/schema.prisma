@@ -1,0 +1,226 @@
+// Student Management System — Registry Module
+// Prisma 7: the datasource URL and seed command live in ../prisma.config.ts
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum Role {
+  STAFF
+  STUDENT
+}
+
+/// Registry and academic staff are different departments in a real institution.
+/// The brief only requires a Staff/Student split, so this shapes navigation and
+/// write permissions rather than acting as a hard wall.
+enum StaffRole {
+  REGISTRY
+  ACADEMIC
+}
+
+enum EnrolmentStatus {
+  ENROLLED
+  DEFERRED
+  WITHDRAWN
+  COMPLETED
+}
+
+enum PaymentMethod {
+  BANK_TRANSFER
+  CARD
+  CASH
+  BURSARY
+}
+
+// ---------------------------------------------------------------------------
+// Identity
+// ---------------------------------------------------------------------------
+
+/// Login account. Separate from Student so staff can exist without a student
+/// record, and so a withdrawn student keeps their record but loses access.
+model User {
+  id           String     @id @default(cuid())
+  email        String     @unique
+  passwordHash String
+  displayName  String
+  role         Role
+  /// Set for staff only; null for students.
+  staffRole    StaffRole?
+  /// Set for students only; null for staff. One account per student.
+  studentId    String?    @unique
+  student      Student?   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  gradedResults Result[] @relation("GradedBy")
+
+  @@index([role])
+}
+
+// ---------------------------------------------------------------------------
+// Registry core
+// ---------------------------------------------------------------------------
+
+model Programme {
+  id            String   @id @default(cuid())
+  name          String
+  code          String   @unique
+  /// Current list price. Copied onto FeeRecord at assignment time so changing
+  /// it never rewrites what an existing student was charged.
+  feeAmount     Decimal  @db.Decimal(10, 2)
+  durationYears Int      @default(3)
+  createdAt     DateTime @default(now())
+
+  students    Student[]
+  feeRecords  FeeRecord[]
+  assessments Assessment[]
+}
+
+model Student {
+  /// Human-facing registry number, e.g. SMS-2025-0001. Distinct from `id`.
+  studentId    String          @unique
+  id           String          @id @default(cuid())
+  fullName     String
+  email        String          @unique
+  dateOfBirth  DateTime        @db.Date
+  academicYear Int
+  status       EnrolmentStatus @default(ENROLLED)
+  programmeId  String
+  programme    Programme       @relation(fields: [programmeId], references: [id])
+  /// Soft archive — fee and grade history must survive "deletion".
+  archivedAt   DateTime?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  user        User?
+  feeRecords  FeeRecord[]
+  payments    Payment[]
+  submissions Submission[]
+  results     Result[]
+
+  @@index([programmeId])
+  @@index([status])
+  @@index([fullName])
+}
+
+/// Race-safe source of the SMS-YYYY-NNNN sequence. Incremented inside a
+/// transaction — `count() + 1` would collide under concurrent enrolment.
+model StudentIdCounter {
+  year      Int @id
+  lastValue Int @default(0)
+}
+
+// ---------------------------------------------------------------------------
+// Fees & payments
+// ---------------------------------------------------------------------------
+
+/// A charge levied on a student. The outstanding balance is always derived
+/// from FeeRecord totals minus Payment totals — never stored.
+model FeeRecord {
+  id           String    @id @default(cuid())
+  studentId    String
+  student      Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  programmeId  String
+  programme    Programme @relation(fields: [programmeId], references: [id])
+  /// Snapshot of Programme.feeAmount when this charge was raised.
+  amount       Decimal   @db.Decimal(10, 2)
+  description  String
+  academicYear Int
+  /// The brief never defines "overdue"; we do: balance > 0 AND dueDate < today.
+  dueDate      DateTime  @db.Date
+  createdAt    DateTime  @default(now())
+
+  @@index([studentId])
+  @@index([dueDate])
+}
+
+model Payment {
+  id        String        @id @default(cuid())
+  studentId String
+  student   Student       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  amount    Decimal       @db.Decimal(10, 2)
+  paidAt    DateTime
+  /// Unique so a double-keyed transaction is rejected by the database.
+  reference String        @unique
+  method    PaymentMethod @default(BANK_TRANSFER)
+  note      String?
+  createdAt DateTime      @default(now())
+
+  @@index([studentId])
+}
+
+// ---------------------------------------------------------------------------
+// Assessments, submissions & results
+// ---------------------------------------------------------------------------
+
+model Assessment {
+  id          String     @id @default(cuid())
+  title       String
+  module      String
+  deadline    DateTime
+  /// Null means the assessment applies to every programme.
+  programmeId String?
+  programme   Programme? @relation(fields: [programmeId], references: [id])
+  maxScore    Int        @default(100)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  submissions Submission[]
+  results     Result[]
+
+  @@index([deadline])
+}
+
+model Submission {
+  id           String     @id @default(cuid())
+  assessmentId String
+  assessment   Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  studentId    String
+  student      Student    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  /// Server-generated storage name. The client-supplied name is kept only for
+  /// display and download, never used to build a filesystem path.
+  storedName   String
+  originalName String
+  mimeType     String
+  sizeBytes    Int
+  submittedAt  DateTime   @default(now())
+  /// Persisted at write time, not derived on read — editing a deadline later
+  /// must not retroactively rewrite whether a submission was late.
+  isLate       Boolean    @default(false)
+  /// Bumped on resubmission; the row itself is reused.
+  version      Int        @default(1)
+
+  /// Enforces "one submission per student per assessment" in the database.
+  @@unique([assessmentId, studentId])
+  @@index([studentId])
+}
+
+model Result {
+  id           String     @id @default(cuid())
+  assessmentId String
+  assessment   Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  studentId    String
+  student      Student    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  /// Null means graded as "not submitted" / absent.
+  score        Int?       @db.SmallInt
+  /// Students never see a result until this is true. Enforced in the query.
+  isPublished  Boolean    @default(false)
+  publishedAt  DateTime?
+  gradedById   String?
+  gradedBy     User?      @relation("GradedBy", fields: [gradedById], references: [id])
+  gradedAt     DateTime?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@unique([assessmentId, studentId])
+  @@index([studentId, isPublished])
+}
