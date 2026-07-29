@@ -14,7 +14,14 @@ import path from "node:path";
  * changing one file.
  */
 
-const UPLOAD_DIR = process.env.UPLOAD_DIR || "uploads";
+/**
+ * A literal, not an env var. Turbopack's file tracer treats a dynamic path
+ * joined onto `process.cwd()` as "this code might read anything", and traces
+ * the entire project into the build output. A static segment keeps the trace
+ * tight. Configurability here was not worth a bloated bundle; point the whole
+ * project at a different disk instead if you need to.
+ */
+const UPLOAD_DIR = "uploads";
 
 export const MAX_UPLOAD_BYTES = 10 * 1024 * 1024; // 10 MB
 
@@ -31,7 +38,7 @@ export function isAllowedMime(mime: string): mime is AllowedMime {
 }
 
 function uploadRoot(): string {
-  return path.resolve(process.cwd(), UPLOAD_DIR);
+  return path.join(process.cwd(), UPLOAD_DIR);
 }
 
 export type StoredFile = { storedName: string; sizeBytes: number };

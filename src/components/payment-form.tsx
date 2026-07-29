@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useRef } from "react";
+import { useActionState, useEffect, useRef } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,10 +30,12 @@ export function PaymentForm({
   const formRef = useRef<HTMLFormElement>(null);
 
   // Clear the form after a successful entry so the next receipt can be keyed
-  // straight away without stale values being resubmitted.
-  if (state.status === "success" && formRef.current) {
-    formRef.current.reset();
-  }
+  // straight away without stale values being resubmitted. Done in an effect
+  // because touching a ref during render can leave the DOM and the rendered
+  // output disagreeing.
+  useEffect(() => {
+    if (state.status === "success") formRef.current?.reset();
+  }, [state]);
 
   const errors = state.fieldErrors ?? {};
   const today = new Date().toISOString().slice(0, 10);

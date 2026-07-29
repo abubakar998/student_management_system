@@ -9,13 +9,11 @@ const envSchema = z.object({
   JWT_SECRET: z
     .string()
     .min(32, "JWT_SECRET must be at least 32 characters. Generate one with: node -e \"console.log(require('crypto').randomBytes(32).toString('hex'))\""),
-  UPLOAD_DIR: z.string().min(1).default("uploads"),
 });
 
 const parsed = envSchema.safeParse({
   DATABASE_URL: process.env.DATABASE_URL,
   JWT_SECRET: process.env.JWT_SECRET,
-  UPLOAD_DIR: process.env.UPLOAD_DIR,
 });
 
 if (!parsed.success) {

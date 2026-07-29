@@ -35,7 +35,8 @@ const YEAR = today.getFullYear();
  * bytes behind it and every download would 404.
  */
 async function writePlaceholderFile(storedName: string, title: string): Promise<number> {
-  const dir = path.resolve(process.cwd(), process.env.UPLOAD_DIR || "uploads");
+  // Must match UPLOAD_DIR in src/lib/storage.ts.
+  const dir = path.join(process.cwd(), "uploads");
   await mkdir(dir, { recursive: true });
 
   // A minimal but structurally valid single-page PDF, so it actually opens.
