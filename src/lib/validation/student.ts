@@ -44,3 +44,5 @@ export const studentFilterSchema = z.object({
   status: enrolmentStatusSchema.optional(),
   page: z.coerce.number().int().min(1).default(1),
 });
+
+export type StudentFilter = z.infer<typeof studentFilterSchema>;

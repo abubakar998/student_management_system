@@ -8,9 +8,11 @@ export default defineConfig({
     seed: "tsx prisma/seed.ts",
   },
   datasource: {
-    url: process.env["DATABASE_URL"],
-    // Optional. `npx prisma dev` exposes a second server for the shadow
-    // database; a hosted Postgres normally lets Prisma create one itself.
+    // Migrations run over the direct connection where one is configured.
+    // Neon (and most serverless Postgres) pool with PgBouncer, which does not
+    // support the advisory locks and session state the migration engine needs.
+    // The running app still uses the pooled DATABASE_URL.
+    url: process.env["DIRECT_URL"] ?? process.env["DATABASE_URL"],
     shadowDatabaseUrl: process.env["SHADOW_DATABASE_URL"],
   },
 });
