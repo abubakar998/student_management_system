@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 
+import { ForbiddenError, UnauthenticatedError } from "./errors";
 import { type Actor, getActor } from "./session";
 
 /**
@@ -17,19 +18,7 @@ import { type Actor, getActor } from "./session";
  *                   result the form can render.
  */
 
-export class ForbiddenError extends Error {
-  constructor(message = "You do not have permission to do that.") {
-    super(message);
-    this.name = "ForbiddenError";
-  }
-}
-
-export class UnauthenticatedError extends Error {
-  constructor(message = "You must be signed in.") {
-    super(message);
-    this.name = "UnauthenticatedError";
-  }
-}
+export { ForbiddenError, UnauthenticatedError } from "./errors";
 
 export type StaffActor = Actor & { role: "STAFF"; staffRole: NonNullable<Actor["staffRole"]> };
 export type StudentActor = Actor & { role: "STUDENT"; student: NonNullable<Actor["student"]> };
