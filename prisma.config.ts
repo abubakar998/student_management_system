@@ -9,5 +9,8 @@ export default defineConfig({
   },
   datasource: {
     url: process.env["DATABASE_URL"],
+    // Optional. `npx prisma dev` exposes a second server for the shadow
+    // database; a hosted Postgres normally lets Prisma create one itself.
+    shadowDatabaseUrl: process.env["SHADOW_DATABASE_URL"],
   },
 });
