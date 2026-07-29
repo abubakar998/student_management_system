@@ -1,5 +1,8 @@
 import "dotenv/config";
 
+import { mkdir, writeFile } from "node:fs/promises";
+import path from "node:path";
+
 import { PrismaPg } from "@prisma/adapter-pg";
 import { addDays, subDays } from "date-fns";
 
@@ -25,6 +28,34 @@ const DEMO_PASSWORD = "Password123!";
 
 const today = new Date();
 const YEAR = today.getFullYear();
+
+/**
+ * Seeded submissions point at real files on disk, so the download route works
+ * out of the box for a reviewer. Without these the record would exist with no
+ * bytes behind it and every download would 404.
+ */
+async function writePlaceholderFile(storedName: string, title: string): Promise<number> {
+  const dir = path.resolve(process.cwd(), process.env.UPLOAD_DIR || "uploads");
+  await mkdir(dir, { recursive: true });
+
+  // A minimal but structurally valid single-page PDF, so it actually opens.
+  const body = `%PDF-1.4
+1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj
+2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj
+3 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 595 842]/Contents 4 0 R/Resources<</Font<</F1 5 0 R>>>>>>endobj
+4 0 obj<</Length 90>>stream
+BT /F1 14 Tf 60 760 Td (${title.replace(/[()\\]/g, "")}) Tj ET
+endstream
+endobj
+5 0 obj<</Type/Font/Subtype/Type1/BaseFont/Helvetica>>endobj
+trailer<</Root 1 0 R>>
+%%EOF
+`;
+
+  const buffer = Buffer.from(body, "latin1");
+  await writeFile(path.join(dir, storedName), buffer);
+  return buffer.byteLength;
+}
 
 async function main() {
   console.log("Seeding Student Management System…");
@@ -221,6 +252,10 @@ async function main() {
 
   // --- submissions ---------------------------------------------------------
 
+  const amaraCs201Size = await writePlaceholderFile(
+    "seed-amara-cs201.pdf",
+    "Amara Okafor - Data Structures Coursework",
+  );
   await prisma.submission.create({
     data: {
       assessmentId: closedAssessment.id,
@@ -228,27 +263,35 @@ async function main() {
       storedName: "seed-amara-cs201.pdf",
       originalName: "amara-okafor-data-structures.pdf",
       mimeType: "application/pdf",
-      sizeBytes: 184_320,
+      sizeBytes: amaraCs201Size,
       submittedAt: subDays(today, 12),
       isLate: false,
     },
   });
 
   // Handed in two days after the deadline: accepted, but permanently flagged.
+  const benCs201Size = await writePlaceholderFile(
+    "seed-ben-cs201.pdf",
+    "Ben Whitfield - Data Structures Coursework (late)",
+  );
   await prisma.submission.create({
     data: {
       assessmentId: closedAssessment.id,
       studentId: students["Ben Whitfield"].id,
-      storedName: "seed-ben-cs201.docx",
-      originalName: "ben-whitfield-data-structures.docx",
-      mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      sizeBytes: 96_140,
+      storedName: "seed-ben-cs201.pdf",
+      originalName: "ben-whitfield-data-structures.pdf",
+      mimeType: "application/pdf",
+      sizeBytes: benCs201Size,
       submittedAt: subDays(today, 8),
       isLate: true,
       version: 2,
     },
   });
 
+  const amaraCs310Size = await writePlaceholderFile(
+    "seed-amara-cs310.pdf",
+    "Amara Okafor - Systems Analysis Report",
+  );
   await prisma.submission.create({
     data: {
       assessmentId: openAssessment.id,
@@ -256,7 +299,7 @@ async function main() {
       storedName: "seed-amara-cs310.pdf",
       originalName: "amara-okafor-systems-analysis.pdf",
       mimeType: "application/pdf",
-      sizeBytes: 212_880,
+      sizeBytes: amaraCs310Size,
       submittedAt: subDays(today, 1),
       isLate: false,
     },
