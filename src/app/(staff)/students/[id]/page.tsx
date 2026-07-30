@@ -53,11 +53,11 @@ export default async function StudentDetailPage({ params }: { params: Promise<{ 
                 {balance.daysOverdue} days overdue since {format(balance.overdueSince!, "d MMM yyyy")}
               </Badge>
             ) : balance.credit.gt(0) ? (
-              <p className="text-xs text-emerald-600">Overpaid — held as credit.</p>
+              <p className="text-xs text-emerald-600 dark:text-emerald-400">Overpaid — held as credit.</p>
             ) : balance.outstanding.gt(0) ? (
               <p className="text-muted-foreground text-xs">Owed, but not yet due.</p>
             ) : (
-              <p className="text-xs text-emerald-600">Settled in full.</p>
+              <p className="text-xs text-emerald-600 dark:text-emerald-400">Settled in full.</p>
             )}
           </CardContent>
         </Card>
@@ -242,11 +242,11 @@ export default async function StudentDetailPage({ params }: { params: Promise<{ 
                         </TableCell>
                         <TableCell>
                           {r.isPublished ? (
-                            <Badge variant="outline" className="border-emerald-600/30 text-emerald-700">
+                            <Badge variant="outline" className="border-emerald-600/30 text-emerald-700 dark:text-emerald-400">
                               Published
                             </Badge>
                           ) : (
-                            <Badge variant="outline" className="border-amber-600/30 text-amber-700">
+                            <Badge variant="outline" className="border-amber-600/30 text-amber-700 dark:text-amber-400">
                               Withheld
                             </Badge>
                           )}

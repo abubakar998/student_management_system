@@ -78,7 +78,7 @@ export default async function PortalAssessmentsPage() {
                         submission.isLate ? (
                           <Badge variant="destructive">Submitted late</Badge>
                         ) : (
-                          <Badge variant="outline" className="border-emerald-600/30 text-emerald-700">
+                          <Badge variant="outline" className="border-emerald-600/30 text-emerald-700 dark:text-emerald-400">
                             Submitted
                           </Badge>
                         )

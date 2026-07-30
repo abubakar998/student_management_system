@@ -62,13 +62,13 @@ export default async function PortalPage() {
           </CardHeader>
           <CardContent className="pt-0">
             {balance.credit.gt(0) ? (
-              <p className="text-xs text-emerald-600">In credit — nothing to pay.</p>
+              <p className="text-xs text-emerald-600 dark:text-emerald-400">In credit — nothing to pay.</p>
             ) : balance.isOverdue ? (
               <p className="text-destructive text-xs">Overdue by {balance.daysOverdue} days.</p>
             ) : balance.outstanding.gt(0) ? (
               <p className="text-muted-foreground text-xs">Not yet due.</p>
             ) : (
-              <p className="text-xs text-emerald-600">Settled in full.</p>
+              <p className="text-xs text-emerald-600 dark:text-emerald-400">Settled in full.</p>
             )}
             <Link href="/portal/fees" className="mt-2 inline-block text-xs underline">
               View fees and payments

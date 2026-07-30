@@ -106,7 +106,7 @@ export default async function FeesPage() {
                     <TableCell className="text-right tabular-nums">{formatMoney(r.balance.paid)}</TableCell>
                     <TableCell className="text-right">
                       {r.balance.credit.gt(0) ? (
-                        <span className="text-sm text-emerald-600">{formatMoney(r.balance.credit)} credit</span>
+                        <span className="text-sm text-emerald-600 dark:text-emerald-400">{formatMoney(r.balance.credit)} credit</span>
                       ) : r.balance.outstanding.lte(0) ? (
                         <span className="text-muted-foreground text-sm">Settled</span>
                       ) : (

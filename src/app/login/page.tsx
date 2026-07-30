@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { LoginForm } from "@/components/login-form";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getActor } from "@/lib/session";
 
@@ -12,7 +13,12 @@ export default async function LoginPage() {
   if (actor) redirect(actor.role === "STAFF" ? "/dashboard" : "/portal");
 
   return (
-    <main className="flex min-h-svh items-center justify-center p-4">
+    <main className="relative flex min-h-svh items-center justify-center p-4">
+      {/* Available before signing in, so the theme can be set on arrival. */}
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
+
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="text-xl">Student Management System</CardTitle>

@@ -57,11 +57,11 @@ export default async function PortalFeesPage() {
                 Overdue by {balance.daysOverdue} days
               </Badge>
             ) : balance.credit.gt(0) ? (
-              <p className="text-xs text-emerald-600">You have overpaid — this is held as credit.</p>
+              <p className="text-xs text-emerald-600 dark:text-emerald-400">You have overpaid — this is held as credit.</p>
             ) : balance.outstanding.gt(0) ? (
               <p className="text-muted-foreground text-xs">Not yet due.</p>
             ) : (
-              <p className="text-xs text-emerald-600">Settled in full — thank you.</p>
+              <p className="text-xs text-emerald-600 dark:text-emerald-400">Settled in full — thank you.</p>
             )}
           </CardContent>
         </Card>

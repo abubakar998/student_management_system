@@ -90,7 +90,7 @@ export default async function StudentsPage({
                     </TableCell>
                     <TableCell className="text-right">
                       {s.balance.credit.gt(0) ? (
-                        <span className="text-sm text-emerald-600">
+                        <span className="text-sm text-emerald-600 dark:text-emerald-400">
                           {formatMoney(s.balance.credit)} credit
                         </span>
                       ) : s.balance.outstanding.lte(0) ? (

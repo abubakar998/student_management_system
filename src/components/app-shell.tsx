@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { ThemeToggle } from "@/components/theme-toggle";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { logout } from "@/lib/actions/auth";
@@ -65,6 +66,7 @@ export function AppShell({ actor, children }: { actor: Actor; children: React.Re
           </nav>
 
           <div className="ml-auto flex items-center gap-3">
+            <ThemeToggle />
             <div className="text-right leading-tight">
               <p className="text-sm font-medium">{actor.displayName}</p>
               <p className="text-muted-foreground text-xs">

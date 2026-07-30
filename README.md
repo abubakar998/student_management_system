@@ -6,6 +6,8 @@ Built for the PEN Global technical assessment ([brief](doc/SMS_Technical_Assessm
 
 **Stack:** Next.js 16 (App Router) · PostgreSQL · Prisma 7 · TypeScript · Tailwind 4 · shadcn/ui · Zod
 
+Light and dark themes are both supported, following the operating system until you click the toggle in the header (also available on the login page). `next-themes` sets the class on `<html>` from a blocking script, so there is no flash of the wrong theme on load.
+
 ---
 
 ## Running it locally
