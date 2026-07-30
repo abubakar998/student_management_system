@@ -4,6 +4,8 @@ A focused implementation of the four workflows a Registry Administrator uses eve
 
 Built for the PEN Global technical assessment ([brief](doc/SMS_Technical_Assessment_.pdf) · [derived requirements](doc/REQUIREMENTS.md)).
 
+**Reviewing this?** [doc/TESTING.md](doc/TESTING.md) is a step-by-step walkthrough with expected results for every check, tied to the seeded data.
+
 **Stack:** Next.js 16 (App Router) · PostgreSQL · Prisma 7 · TypeScript · Tailwind 4 · shadcn/ui · Zod
 
 Light and dark themes are both supported, following the operating system until you click the toggle in the header (also available on the login page). `next-themes` sets the class on `<html>` from a blocking script, so there is no flash of the wrong theme on load.
