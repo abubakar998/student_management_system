@@ -102,6 +102,21 @@ export async function getStudentDetail(id: string) {
   });
 }
 
+/**
+ * Programmes for dropdowns.
+ *
+ * Explicitly selected rather than returning the whole row. Every caller passes
+ * this straight to a client component, and `Programme.feeAmount` is a Prisma
+ * `Decimal` — a class instance, not a plain object, so React cannot serialise
+ * it across the server/client boundary. Selecting only the fields a `<select>`
+ * needs keeps the payload serialisable and smaller.
+ *
+ * If a caller ever needs the fee, fetch it server-side and pass a formatted
+ * string, never the Decimal itself.
+ */
 export function listProgrammes() {
-  return prisma.programme.findMany({ orderBy: { name: "asc" } });
+  return prisma.programme.findMany({
+    orderBy: { name: "asc" },
+    select: { id: true, name: true, code: true },
+  });
 }

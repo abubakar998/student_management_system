@@ -80,9 +80,10 @@ npm run typecheck      # tsc --noEmit
 npm run build          # production build
 
 # End-to-end checks (dev server must be running)
-npx tsx scripts/verify-auth.ts        # 13 auth / authorisation assertions
-npx tsx scripts/smoke-students.ts     # 13 enrolment assertions
-npx tsx scripts/smoke-workflows.ts    # 29 fees / submission / marksheet assertions
+npx tsx scripts/verify-auth.ts               # 13 auth / authorisation assertions
+npx tsx scripts/smoke-students.ts            # 13 enrolment assertions
+npx tsx scripts/smoke-workflows.ts           # 29 fees / submission / marksheet assertions
+npx tsx scripts/check-rsc-serialization.ts   # scans every route for server→client serialisation errors
 ```
 
 ---
@@ -181,6 +182,7 @@ This project was built with **Claude Opus 5** (Claude Code) throughout. Being sp
 - **It suggested `docker-compose.yml` reflexively.** Challenged on why, there was no good answer; the brief never mentions Docker. Dropped in favour of documenting four interchangeable database options.
 - **Three of its own test assertions were wrong in the same way** — too crude, passing or failing for the wrong reason. A bare `"55"` matched `rgba(255,255,255,.3)`; a regex for the overdue badge broke on React's `<!-- -->` text-node separators; an assertion that "Merit" was absent failed against the page's own legend text. Each time the feature was correct and the *test* was the bug. Worth stating plainly: AI-written tests need the same scepticism as AI-written code, and a green suite proves nothing if the assertions are vacuous.
 - **One real bug it introduced, caught via a 500 on every page:** `action-result.ts` imported error classes from `authz.ts`, which reaches `next/headers`. A client component importing `idleState` therefore dragged server-only code into the browser bundle. Fixed by extracting [`src/lib/errors.ts`](src/lib/errors.ts) with no dependencies.
+- **A second bug that every automated check missed.** `listProgrammes()` returned whole `Programme` rows, including `feeAmount` — a Prisma `Decimal`, which is a class instance React cannot serialise to a client component. The page still returned **200 and still rendered**, so status-code and content assertions were blind to it; it only appeared as a console error when a human opened the page. The fix was to select just the fields the dropdown needs, but the more useful outcome was [`scripts/check-rsc-serialization.ts`](scripts/check-rsc-serialization.ts), which visits every route and scans the server log for serialisation errors. **I confirmed it fails by reintroducing the bug** — a check that has never been seen to fail is not evidence of anything, which was the lesson from the three bad assertions above.
 
 **Honest summary:** AI compressed several days into hours, and was most useful on schema design, boilerplate, and writing tests I would otherwise have been too lazy to write. It was least trustworthy on anything past its knowledge cutoff, and on judging whether its own tests actually tested anything. The product decisions above are mine; AI helped me articulate and pressure-test them.
 
