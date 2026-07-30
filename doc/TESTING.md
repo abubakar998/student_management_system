@@ -2,6 +2,8 @@
 
 Every step below has an **expected result** tied to the seeded demo data, so you can tell a pass from a fail without knowing the codebase.
 
+> Prefer to follow **one student through the whole lifecycle** instead of running independent checks? See [E2E-WALKTHROUGH.md](E2E-WALKTHROUGH.md) — a single continuous browser-only scenario that creates a new student and takes them through enrolment, fees, submission, marking, publication and withdrawal. This document is the checklist; that one is the story.
+
 All accounts use the password **`Password123!`**
 
 > Day counts ("overdue by N days") are relative to when you last seeded, so they grow over time. The figures below are the ones that matter and don't drift: amounts, statuses, and which students appear where.

@@ -4,7 +4,9 @@ A focused implementation of the four workflows a Registry Administrator uses eve
 
 Built for the PEN Global technical assessment ([brief](doc/SMS_Technical_Assessment_.pdf) · [derived requirements](doc/REQUIREMENTS.md)).
 
-**Reviewing this?** [doc/TESTING.md](doc/TESTING.md) is a step-by-step walkthrough with expected results for every check, tied to the seeded data.
+**Reviewing this?** Two guides, both with expected results for every step:
+- [doc/E2E-WALKTHROUGH.md](doc/E2E-WALKTHROUGH.md) — one continuous browser-only scenario following a new student through all four workflows (~15 min).
+- [doc/TESTING.md](doc/TESTING.md) — a checklist of independent checks against the seeded data, plus the automated scripts.
 
 **Stack:** Next.js 16 (App Router) · PostgreSQL · Prisma 7 · TypeScript · Tailwind 4 · shadcn/ui · Zod
 
